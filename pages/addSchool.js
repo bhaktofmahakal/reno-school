@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -46,7 +46,7 @@ export default function AddSchool() {
   const watchImage = watch('image');
 
   // Handle image preview
-  useState(() => {
+  useEffect(() => {
     if (watchImage && watchImage.length > 0) {
       const file = watchImage[0];
       const reader = new FileReader();

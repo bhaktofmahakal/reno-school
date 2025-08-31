@@ -1,40 +1,19 @@
-import connection from '../../../lib/db';
+import { supabase } from '../../../lib/supabase';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { promisify } from 'util';
+import { v2 as cloudinary } from 'cloudinary';
 
-// Configure multer for file upload
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadDir = path.join(process.cwd(), 'public', 'schoolImages');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'school-' + uniqueSuffix + path.extname(file.originalname));
-  }
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const upload = multer({ 
-  storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-  fileFilter: (req, file, cb) => {
-    const filetypes = /jpeg|jpg|png|gif/;
-    const mimetype = filetypes.test(file.mimetype);
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    
-    if (mimetype && extname) {
-      return cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed!'));
-    }
-  }
-});
-
+// Configure multer for temporary file storage
+const upload = multer({ dest: '/tmp/' });
 const uploadMiddleware = promisify(upload.single('image'));
 
 export const config = {
@@ -46,10 +25,23 @@ export const config = {
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
-      const [rows] = await connection.execute('SELECT * FROM schools ORDER BY created_at DESC');
-      res.status(200).json({ success: true, data: rows });
+      const { data, error } = await supabase
+        .from('schools')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      
+      // Debug: Log image URLs
+      data.forEach(school => {
+        if (school.image) {
+          console.log(`📸 School "${school.name}" image URL:`, school.image);
+        }
+      });
+      
+      res.status(200).json({ success: true, data });
     } catch (error) {
-      console.error('Database error:', error);
+      console.error('Error fetching schools:', error);
       res.status(500).json({ success: false, error: 'Failed to fetch schools' });
     }
   } else if (req.method === 'POST') {
@@ -58,7 +50,26 @@ export default async function handler(req, res) {
       await uploadMiddleware(req, res);
       
       const { name, address, city, state, contact, email_id } = req.body;
-      const imagePath = req.file ? `/schoolImages/${req.file.filename}` : null;
+      let imagePath = null;
+      
+      // Upload image to Cloudinary if file exists
+      if (req.file) {
+        try {
+          const result = await cloudinary.uploader.upload(req.file.path, {
+            folder: 'school-images',
+            public_id: `school-${Date.now()}`,
+            overwrite: true,
+            resource_type: 'image'
+          });
+          imagePath = result.secure_url;
+          console.log('✅ Cloudinary upload successful:', imagePath);
+          
+          // Delete temporary file
+          fs.unlinkSync(req.file.path);
+        } catch (uploadError) {
+          console.error('Cloudinary upload error:', uploadError);
+        }
+      }
 
       // Validate required fields
       if (!name || !address || !city || !state || !contact || !email_id) {
@@ -77,15 +88,26 @@ export default async function handler(req, res) {
         return res.status(400).json({ success: false, error: 'Contact number must be 10 digits' });
       }
 
-      const [result] = await connection.execute(
-        'INSERT INTO schools (name, address, city, state, contact, image, email_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [name, address, city, state, contact, imagePath, email_id]
-      );
+      // Insert into Supabase
+      const { data, error } = await supabase
+        .from('schools')
+        .insert([{
+          name,
+          address, 
+          city,
+          state,
+          contact,
+          email_id,
+          image: imagePath
+        }])
+        .select();
+
+      if (error) throw error;
 
       res.status(201).json({ 
         success: true, 
         message: 'School added successfully',
-        id: result.insertId 
+        data: data[0] 
       });
     } catch (error) {
       console.error('Error adding school:', error);

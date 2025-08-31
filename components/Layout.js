@@ -16,10 +16,10 @@ export default function Layout({ children }) {
         <div className="container">
           <div className="nav-container">
             <Link 
-              href="/" 
-              className={`nav-link ${router.pathname === '/' ? 'active' : ''}`}
+              href="/showSchools" 
+              className={`nav-link ${router.pathname === '/showSchools' ? 'active' : ''}`}
             >
-              📋 View Schools
+              🏫 Show Schools
             </Link>
             <Link 
               href="/addSchool" 
