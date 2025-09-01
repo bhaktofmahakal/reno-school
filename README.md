@@ -168,13 +168,13 @@ CREATE TABLE schools (
 
 ```env
 # Supabase Configuration (FREE PostgreSQL)
-NEXT_PUBLIC_SUPABASE_URL=https://pybplfbrgsiphwyzpuko.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5YnBsZmJyZ3NpcGh3eXpwdWtvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2NTY5NzYsImV4cCI6MjA3MjIzMjk3Nn0.iIV9laqa5AvtfbEXUwDN94Vl1q7v785re4n_G1m3_UQ
+NEXT_PUBLIC_SUPABASE_URL=htt*************abase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciO****************************************************************************************************bEUQ
 
 # Cloudinary Configuration (FREE Images)
-CLOUDINARY_CLOUD_NAME=utsavstayfinder
-CLOUDINARY_API_KEY=789657454646898
-CLOUDINARY_API_SECRET=cMYlppClYOwzt3CO-N58zuBvVNk
+CLOUDINARY_CLOUD_NAME= yourss
+CLOUDINARY_API_KEY=7789**********
+CLOUDINARY_API_SECRET=c****************nvnvbhc
 
 # App Configuration
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
