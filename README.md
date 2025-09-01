@@ -104,7 +104,13 @@ CREATE TABLE schools (
    npm run dev
    ```
 
-4. **Open Application**
+4. **Production Build & Test** ✅
+   ```bash
+   npm run build    # Build successful ✅
+   npm start        # Production server ✅
+   ```
+
+5. **Open Application**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## 📱 Pages

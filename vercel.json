@@ -13,10 +13,8 @@
     }
   ],
   "env": {
-    "DB_HOST": "@db-host",
-    "DB_USER": "@db-user",
-    "DB_PASSWORD": "@db-password",
-    "DB_NAME": "@db-name",
+    "NEXT_PUBLIC_SUPABASE_URL": "@supabase-url",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@supabase-anon-key",
     "CLOUDINARY_CLOUD_NAME": "@cloudinary-cloud-name",
     "CLOUDINARY_API_KEY": "@cloudinary-api-key",
     "CLOUDINARY_API_SECRET": "@cloudinary-api-secret"
